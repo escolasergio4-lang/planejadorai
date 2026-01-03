@@ -4,223 +4,382 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Educador IA - BNCC Pro</title>
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#6366f1">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3426/3426653.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                    colors: {
+                        primary: { 50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 800: '#3730a3', 900: '#312e81' },
+                        accent: { 50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 300: '#5eead4', 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e' },
+                        surface: { 50: '#fafafa', 100: '#f4f4f5', 200: '#e4e4e7', 300: '#d4d4d8' }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%); }
         
-        /* Scrollbar */
-        .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+        /* Custom Scrollbar */
+        .scrollbar-thin::-webkit-scrollbar { width: 5px; }
         .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-        .scrollbar-thin::-webkit-scrollbar-thumb { background-color: rgba(37, 99, 235, 0.3); border-radius: 20px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #a5b4fc, #818cf8); border-radius: 10px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #818cf8, #6366f1); }
         
-        /* CORREÇÃO DO LAYOUT DO SIDEBAR */
-        #sidebar {
-            display: flex;
-            flex-direction: column;
-            height: 100vh; /* Ocupa altura total */
-            max-height: 100vh;
-            overflow: hidden; /* Evita scroll duplo */
-        }
+        /* Sidebar Layout */
+        #sidebar { display: flex; flex-direction: column; height: 100vh; max-height: 100vh; overflow: hidden; }
+        #sidebar-header { flex-shrink: 0; }
+        #toolList { flex-grow: 1; overflow-y: auto; min-height: 0; }
+        #sidebar-footer { flex-shrink: 0; }
         
-        /* O cabeçalho do sidebar não encolhe */
-        #sidebar-header {
-            flex-shrink: 0;
-        }
-
-        /* A lista cresce e rola */
-        #toolList {
-            flex-grow: 1;
-            overflow-y: auto;
-            min-height: 0; /* Importante para o Firefox */
-        }
-
-        /* O rodapé não encolhe */
-        #sidebar-footer {
-            flex-shrink: 0;
-        }
-
-        /* Utilitários */
+        /* Utilities */
         .hidden-screen { display: none !important; }
-        .fade-in { animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        /* Animações */
-        .pencil-loader { display: inline-block; font-size: 40px; color: #2563eb; animation: writing 0.8s infinite alternate; transform-origin: bottom center; }
-        @keyframes writing { 0% { transform: rotate(-15deg) translateY(0); } 100% { transform: rotate(15deg) translateY(-5px); } }
+        /* Animations */
+        .fade-in { animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .loader { border: 4px solid #f3f3f3; border-radius: 50%; border-top: 4px solid #3498db; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Estilo do conteúdo gerado */
-        .markdown-body h1 { font-size: 1.5em; font-weight: bold; color: #1e40af; margin-bottom: 0.5em; }
-        .markdown-body h2 { font-size: 1.3em; font-weight: bold; color: #3730a3; margin-top: 1em; margin-bottom: 0.5em; }
+        .slide-up { animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .scale-in { animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        /* Loader Animations */
+        .pencil-loader { display: inline-block; font-size: 48px; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; animation: writing 0.8s infinite alternate ease-in-out; transform-origin: bottom center; }
+        @keyframes writing { 0% { transform: rotate(-12deg) translateY(0); } 100% { transform: rotate(12deg) translateY(-8px); } }
+        
+        .loader { width: 48px; height: 48px; border: 3px solid #e0e7ff; border-radius: 50%; border-top-color: #6366f1; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .pulse-ring { animation: pulseRing 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulseRing { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        /* Glassmorphism */
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .glass-dark { background: rgba(99, 102, 241, 0.1); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        
+        /* Gradient Text */
+        .gradient-text { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+        
+        /* Button Hover Effects */
+        .btn-primary { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.39); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px 0 rgba(99, 102, 241, 0.5); }
+        .btn-primary:active { transform: translateY(0); }
+        
+        .btn-secondary { background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 14px 0 rgba(20, 184, 166, 0.39); }
+        .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px 0 rgba(20, 184, 166, 0.5); }
+        
+        /* Card Hover */
+        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -12px rgba(99, 102, 241, 0.25); }
+        
+        /* Tool Item */
+        .tool-item { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border-left: 3px solid transparent; }
+        .tool-item:hover { background: linear-gradient(90deg, rgba(99, 102, 241, 0.08) 0%, transparent 100%); border-left-color: #6366f1; }
+        .tool-item.active { background: linear-gradient(90deg, rgba(99, 102, 241, 0.12) 0%, transparent 100%); border-left-color: #6366f1; }
+        
+        /* Input Focus */
+        .input-modern { transition: all 0.2s ease; border: 2px solid #e4e4e7; }
+        .input-modern:focus { border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); outline: none; }
+        
+        /* Markdown Content */
+        .markdown-body h1 { font-size: 1.5em; font-weight: 700; background: linear-gradient(135deg, #4f46e5, #7c3aed); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; margin-bottom: 0.75em; }
+        .markdown-body h2 { font-size: 1.25em; font-weight: 600; color: #4338ca; margin-top: 1.5em; margin-bottom: 0.5em; }
+        .markdown-body h3 { font-size: 1.1em; font-weight: 600; color: #6366f1; margin-top: 1.25em; margin-bottom: 0.5em; }
         .markdown-body ul, .markdown-body ol { margin-left: 1.5em; margin-bottom: 1em; }
-        .markdown-body p { margin-bottom: 1em; line-height: 1.6; }
-        .markdown-body strong { color: #1f2937; }
+        .markdown-body li { margin-bottom: 0.5em; line-height: 1.7; }
+        .markdown-body p { margin-bottom: 1em; line-height: 1.8; color: #374151; }
+        .markdown-body strong { color: #1f2937; font-weight: 600; }
+        .markdown-body code { background: #f3f4f6; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; }
+        
+        /* Modal Backdrop */
+        .modal-backdrop { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); }
     </style>
 </head>
-<body class="bg-gray-50 h-screen overflow-hidden">
+<body class="h-screen overflow-hidden">
 
-    <div id="loginScreen" class="absolute inset-0 z-50 bg-gradient-to-br from-blue-900 via-blue-700 to-indigo-800 flex flex-col items-center justify-center p-4">
-        <div class="mb-8 p-6 bg-white/10 rounded-full backdrop-blur-sm shadow-2xl animate-bounce">
-            <i class="fas fa-graduation-cap text-6xl text-white"></i>
-        </div>
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden fade-in">
-            <div class="p-8">
-                <div class="text-center mb-8">
-                    <h1 class="text-2xl font-bold text-gray-800">Área do Professor</h1>
-                    <p class="text-gray-500 text-sm mt-1">Educador IA - BNCC Pro</p>
-                </div>
-                <form id="loginForm" class="space-y-6" onsubmit="handleLogin(event)" autocomplete="off">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input type="email" id="loginEmail" name="app_login_email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="appescola@email.com" autocomplete="username">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Senha</label>
-                        <input type="password" id="loginPass" name="app_login_pass" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="••••••••" autocomplete="current-password">
-                    </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg transform active:scale-95 transition-all">Entrar</button>
-                </form>
-                <div id="loginLoader" class="hidden flex flex-col items-center justify-center mt-6">
-                    <div class="pencil-loader mb-2"><i class="fas fa-pencil-alt"></i></div>
-                    <p class="text-blue-600 font-medium text-sm">Validando...</p>
-                </div>
-                <p id="loginError" class="hidden text-red-500 text-center text-sm mt-4 bg-red-50 p-2 rounded">Dados incorretos.</p>
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="absolute inset-0 z-50 flex flex-col items-center justify-center p-4 overflow-hidden">
+        <!-- Animated Background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-primary-900 via-primary-700 to-purple-800">
+            <div class="absolute inset-0 opacity-30">
+                <div class="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+                <div class="absolute bottom-20 right-20 w-72 h-72 bg-primary-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+                <div class="absolute top-1/2 left-1/2 w-72 h-72 bg-accent-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
             </div>
-            <div class="bg-gray-50 p-4 text-center border-t border-gray-100">
-                <button id="installAppBtn" class="text-sm text-blue-600 font-medium hover:text-blue-800 hidden"><i class="fas fa-download mr-1"></i> Instalar App</button>
+        </div>
+        
+        <!-- Logo -->
+        <div class="relative mb-10 slide-up">
+            <div class="w-28 h-28 bg-white/10 rounded-3xl flex items-center justify-center backdrop-blur-xl border border-white/20 shadow-2xl">
+                <i class="fas fa-graduation-cap text-5xl text-white"></i>
+            </div>
+            <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-accent-400 rounded-xl flex items-center justify-center shadow-lg">
+                <i class="fas fa-sparkles text-white text-sm"></i>
+            </div>
+        </div>
+        
+        <!-- Login Card -->
+        <div class="relative glass rounded-3xl shadow-2xl w-full max-w-md overflow-hidden fade-in">
+            <div class="p-8 md:p-10">
+                <div class="text-center mb-8">
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Bem-vindo de volta</h1>
+                    <p class="text-gray-500 text-sm">Educador IA - BNCC Pro</p>
+                </div>
+                
+                <form id="loginForm" class="space-y-5" onsubmit="handleLogin(event)" autocomplete="off">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-gray-700">Email</label>
+                        <div class="relative">
+                            <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="email" id="loginEmail" name="app_login_email" required 
+                                class="w-full pl-12 pr-4 py-3.5 bg-surface-50 border-2 border-surface-200 rounded-xl input-modern text-gray-800 placeholder-gray-400" 
+                                placeholder="seu@email.com" autocomplete="username">
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-gray-700">Senha</label>
+                        <div class="relative">
+                            <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="password" id="loginPass" name="app_login_pass" required 
+                                class="w-full pl-12 pr-4 py-3.5 bg-surface-50 border-2 border-surface-200 rounded-xl input-modern text-gray-800 placeholder-gray-400" 
+                                placeholder="••••••••" autocomplete="current-password">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full btn-primary text-white font-semibold py-4 rounded-xl text-base">
+                        <i class="fas fa-arrow-right-to-bracket mr-2"></i>Entrar
+                    </button>
+                </form>
+                
+                <div id="loginLoader" class="hidden flex flex-col items-center justify-center py-8">
+                    <div class="pencil-loader mb-3"><i class="fas fa-pencil-alt"></i></div>
+                    <p class="text-primary-600 font-medium">Validando credenciais...</p>
+                </div>
+                
+                <p id="loginError" class="hidden text-center text-sm mt-5 bg-red-50 text-red-600 p-4 rounded-xl border border-red-100">
+                    <i class="fas fa-exclamation-circle mr-2"></i>Credenciais inválidas. Tente novamente.
+                </p>
+            </div>
+            
+            <div class="bg-surface-50/80 px-8 py-4 border-t border-surface-200">
+                <button id="installAppBtn" class="w-full text-sm text-primary-600 font-semibold hover:text-primary-700 hidden py-2 flex items-center justify-center gap-2">
+                    <i class="fas fa-download"></i> Instalar Aplicativo
+                </button>
+                <p class="text-center text-xs text-gray-400">© 2026 Educador IA</p>
             </div>
         </div>
     </div>
-
+    <!-- MAIN APP -->
     <div id="mainApp" class="hidden-screen h-full flex overflow-hidden">
         
-        <div class="md:hidden fixed top-0 w-full bg-gradient-to-r from-blue-700 to-indigo-700 text-white z-50 flex items-center justify-between px-4 py-3 shadow-lg flex-shrink-0" style="height: 60px;">
+        <!-- Mobile Header -->
+        <div class="md:hidden fixed top-0 w-full bg-white/80 backdrop-blur-xl text-gray-800 z-50 flex items-center justify-between px-4 py-3 border-b border-surface-200 shadow-sm" style="height: 64px;">
             <div class="flex items-center gap-3">
-                <button onclick="returnToHome()" class="p-1 hover:bg-white/10 rounded-lg transition-colors">
-                    <i class="fas fa-home text-lg"></i>
+                <button onclick="returnToHome()" class="w-10 h-10 flex items-center justify-center hover:bg-surface-100 rounded-xl transition-colors">
+                    <i class="fas fa-home text-primary-600 text-lg"></i>
                 </button>
-                <h1 class="text-lg font-bold">Educador IA</h1>
+                <div>
+                    <h1 class="text-lg font-bold gradient-text">Educador IA</h1>
+                    <p class="text-xs text-gray-500">BNCC Pro</p>
+                </div>
             </div>
-            <button id="mobileMenuBtn" class="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                <i class="fas fa-bars text-xl"></i>
+            <button id="mobileMenuBtn" class="w-10 h-10 flex items-center justify-center hover:bg-surface-100 rounded-xl transition-colors">
+                <i class="fas fa-bars text-gray-600 text-xl"></i>
             </button>
         </div>
 
-        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-80 bg-white border-r border-gray-200 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-2xl md:shadow-none pt-[60px] md:pt-0">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-80 bg-white border-r border-surface-200 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-out shadow-2xl md:shadow-sm pt-[64px] md:pt-0">
             
-            <div id="sidebar-header" class="p-6 bg-gradient-to-br from-blue-700 to-indigo-700 text-white">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="flex items-center gap-3">
-                        <button onclick="returnToHome()" class="p-2 hover:bg-white/10 rounded-lg transition-colors" title="Voltar ao início">
-                            <i class="fas fa-home text-lg"></i>
-                        </button>
-                        <h1 class="text-2xl font-bold">Educador IA</h1>
-                    </div>
-                    <button id="closeSidebarBtn" class="md:hidden text-white/80 hover:text-white p-1">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-                <p class="text-blue-100 text-sm mb-4">Ferramenta Offline-First.</p>
+            <!-- Sidebar Header -->
+            <div id="sidebar-header" class="p-6 bg-gradient-to-br from-primary-600 via-primary-700 to-purple-700 text-white relative overflow-hidden">
+                <!-- Decorative Elements -->
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
                 
-                <button id="installBtn" class="hidden w-full mb-4 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2">
-                    <i class="fas fa-download"></i> Instalar App
-                </button>
-
                 <div class="relative">
-                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-blue-300"></i>
-                    <input type="search" id="searchInput" name="search_tools_unique_id" autocomplete="off" class="w-full bg-white/10 border border-white/20 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-blue-200 focus:outline-none focus:bg-white/20" placeholder="Buscar gerador...">
+                    <div class="flex justify-between items-start mb-5">
+                        <div class="flex items-center gap-3">
+                            <button onclick="returnToHome()" class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center transition-colors" title="Voltar ao início">
+                                <i class="fas fa-home text-lg"></i>
+                            </button>
+                            <div>
+                                <h1 class="text-xl font-bold">Educador IA</h1>
+                                <p class="text-primary-200 text-xs font-medium">BNCC Pro Edition</p>
+                            </div>
+                        </div>
+                        <button id="closeSidebarBtn" class="md:hidden w-8 h-8 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                            <i class="fas fa-times text-lg"></i>
+                        </button>
+                    </div>
+                    
+                    <p class="text-primary-100 text-sm mb-5 leading-relaxed">Assistente pedagógico inteligente com suporte offline.</p>
+                    
+                    <button id="installBtn" class="hidden w-full mb-5 px-4 py-2.5 bg-white/15 hover:bg-white/25 text-white rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 border border-white/20">
+                        <i class="fas fa-download"></i> Instalar App
+                    </button>
+
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-primary-300"></i>
+                        <input type="search" id="searchInput" name="search_tools_unique_id" autocomplete="off" 
+                            class="w-full bg-white/10 border border-white/20 rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder-primary-200 focus:outline-none focus:bg-white/15 focus:border-white/30 transition-all" 
+                            placeholder="Buscar ferramenta...">
+                    </div>
                 </div>
             </div>
             
-            <nav id="toolList" class="scrollbar-thin p-2 space-y-1"></nav>
+            <!-- Tool List -->
+            <nav id="toolList" class="scrollbar-thin p-3 space-y-1"></nav>
             
-            <div id="sidebar-footer" class="p-4 border-t border-gray-200 bg-gray-50 space-y-2">
-                <button onclick="showGuideModal()" class="w-full flex items-center justify-center gap-2 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg text-sm font-semibold transition-colors mb-2">
+            <!-- Sidebar Footer -->
+            <div id="sidebar-footer" class="p-4 border-t border-surface-200 bg-surface-50 space-y-3">
+                <button onclick="showGuideModal()" class="w-full flex items-center justify-center gap-2 text-purple-700 bg-purple-50 hover:bg-purple-100 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors">
                     <i class="fas fa-book-reader"></i> Guia Didático
                 </button>
 
-                <button onclick="showTutorialModal()" class="w-full flex items-center justify-center gap-2 text-blue-700 bg-blue-100 hover:bg-blue-200 px-3 py-2 rounded-lg text-sm font-semibold transition-colors">
-                    <i class="fas fa-question-circle"></i> Ajuda / Chaves
+                <button onclick="showTutorialModal()" class="w-full flex items-center justify-center gap-2 text-primary-700 bg-primary-50 hover:bg-primary-100 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors">
+                    <i class="fas fa-question-circle"></i> Ajuda / Chaves API
                 </button>
-                <div class="text-center text-xs text-gray-500 pt-2 border-t border-gray-200">
-                    <p>© 2026 Educador IA</p>
-                    <p class="text-blue-600 font-semibold cursor-pointer hover:underline" onclick="showApiKeyModal()">
-                        <i class="fas fa-plug mr-1"></i>Configurar IA
-                    </p>
-                    <button id="logoutBtn" onclick="logout()" class="text-red-500 mt-2 hover:underline text-xs cursor-pointer">Sair</button>
+                
+                <div class="pt-3 border-t border-surface-200 space-y-2">
+                    <button onclick="showApiKeyModal()" class="w-full text-center text-sm text-accent-600 font-semibold hover:text-accent-700 py-1 flex items-center justify-center gap-2">
+                        <i class="fas fa-plug"></i> Configurar IA
+                    </button>
+                    <div class="flex items-center justify-between text-xs text-gray-400">
+                        <span>© 2026 Educador IA</span>
+                        <button id="logoutBtn" onclick="logout()" class="text-red-400 hover:text-red-500 font-medium transition-colors">
+                            <i class="fas fa-sign-out-alt mr-1"></i>Sair
+                        </button>
+                    </div>
                 </div>
             </div>
         </aside>
 
-        <div id="overlay" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden"></div>
-
-        <main class="flex-1 flex flex-col h-full w-full md:ml-80 pt-[60px] md:pt-0 bg-gray-50">
+        <!-- Overlay -->
+        <div id="overlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 hidden md:hidden transition-opacity"></div>
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-full w-full md:ml-80 pt-[64px] md:pt-0 bg-gradient-to-br from-surface-50 to-primary-50/30">
             
-            <div id="welcomeState" class="absolute inset-0 flex flex-col items-center justify-center text-center p-8 z-10 bg-gradient-to-br from-gray-50 to-blue-50 overflow-y-auto">
-                <div class="w-32 h-32 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mb-8 shadow-lg shrink-0">
-                    <i class="fas fa-graduation-cap text-6xl text-blue-600"></i>
-                </div>
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Assistente Pedagógico BNCC</h2>
-                <p class="text-gray-600 max-w-2xl mb-8 text-lg">Use a IA integrada ou gere prompts otimizados para copiar.</p>
-                
-                <div id="apiKeyWarning" class="hidden mb-6 p-4 bg-yellow-100 text-yellow-800 rounded-lg max-w-md text-sm text-left shadow-sm cursor-pointer hover:bg-yellow-200 transition" onclick="showTutorialModal()">
-                    <p class="font-bold mb-1"><i class="fas fa-exclamation-triangle mr-1"></i> Configuração Necessária</p>
-                    Clique aqui para aprender a criar sua Chave API gratuita.
-                </div>
+            <!-- Welcome State -->
+            <div id="welcomeState" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 md:p-8 z-10 overflow-y-auto">
+                <div class="max-w-2xl mx-auto slide-up">
+                    <!-- Hero Icon -->
+                    <div class="relative mb-8 inline-block">
+                        <div class="w-32 h-32 bg-gradient-to-br from-primary-100 to-purple-100 rounded-3xl flex items-center justify-center shadow-xl">
+                            <i class="fas fa-graduation-cap text-5xl text-primary-600"></i>
+                        </div>
+                        <div class="absolute -bottom-2 -right-2 w-12 h-12 bg-gradient-to-br from-accent-400 to-accent-500 rounded-2xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-wand-magic-sparkles text-white text-lg"></i>
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+                        Assistente Pedagógico <span class="gradient-text">BNCC</span>
+                    </h2>
+                    <p class="text-gray-500 max-w-xl mx-auto mb-8 text-base md:text-lg leading-relaxed">
+                        Crie conteúdos educacionais de alta qualidade com IA integrada ou gere prompts otimizados para usar em qualquer plataforma.
+                    </p>
+                    
+                    <!-- API Warning -->
+                    <div id="apiKeyWarning" class="hidden mb-8 p-5 bg-amber-50 border border-amber-200 rounded-2xl max-w-md mx-auto text-left cursor-pointer hover:bg-amber-100 transition-all card-hover" onclick="showTutorialModal()">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-key text-amber-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-amber-800 mb-1">Configuração Necessária</p>
+                                <p class="text-sm text-amber-700">Clique aqui para aprender a criar sua Chave API gratuita e desbloquear todo o potencial da IA.</p>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <button onclick="document.getElementById('mobileMenuBtn').click()" class="md:hidden px-6 py-3 bg-blue-600 text-white rounded-full font-semibold shadow-lg hover:bg-blue-700">
-                        <i class="fas fa-bars mr-2"></i>Menu
-                    </button>
-                    <button onclick="showPersonalizationModal()" class="px-6 py-3 bg-indigo-600 text-white rounded-full font-semibold shadow-lg hover:bg-indigo-700">
-                        <i class="fas fa-user-cog mr-2"></i>Meus Dados
-                    </button>
-                    <button onclick="showApiKeyModal()" class="px-6 py-3 bg-emerald-600 text-white rounded-full font-semibold shadow-lg hover:bg-emerald-700">
-                        <i class="fas fa-plug mr-2"></i>Conectar IA
-                    </button>
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button onclick="document.getElementById('mobileMenuBtn').click()" class="md:hidden btn-primary text-white px-6 py-3.5 rounded-xl font-semibold">
+                            <i class="fas fa-bars mr-2"></i>Abrir Menu
+                        </button>
+                        <button onclick="showPersonalizationModal()" class="px-6 py-3.5 bg-white text-gray-700 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all border border-surface-200 hover:border-primary-200 card-hover">
+                            <i class="fas fa-user-cog mr-2 text-primary-500"></i>Meus Dados
+                        </button>
+                        <button onclick="showApiKeyModal()" class="btn-secondary text-white px-6 py-3.5 rounded-xl font-semibold">
+                            <i class="fas fa-plug mr-2"></i>Conectar IA
+                        </button>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="mt-12 grid grid-cols-3 gap-4 max-w-md mx-auto">
+                        <div class="text-center p-4 bg-white/60 rounded-2xl border border-surface-200">
+                            <div class="text-2xl font-bold text-primary-600">13</div>
+                            <div class="text-xs text-gray-500 mt-1">Geradores</div>
+                        </div>
+                        <div class="text-center p-4 bg-white/60 rounded-2xl border border-surface-200">
+                            <div class="text-2xl font-bold text-accent-600">6</div>
+                            <div class="text-xs text-gray-500 mt-1">Provedores IA</div>
+                        </div>
+                        <div class="text-center p-4 bg-white/60 rounded-2xl border border-surface-200">
+                            <div class="text-2xl font-bold text-purple-600">∞</div>
+                            <div class="text-xs text-gray-500 mt-1">Possibilidades</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
+            <!-- Generator Container -->
             <div id="generatorContainer" class="hidden w-full h-full flex flex-col bg-white">
-                <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 shadow-lg flex-shrink-0">
-                    <div class="flex items-center justify-between flex-wrap gap-4">
-                        <div class="flex items-center gap-4">
-                            <i id="generatorIcon" class="fas fa-brain text-2xl"></i>
+                <!-- Generator Header -->
+                <div class="bg-gradient-to-r from-primary-600 via-primary-700 to-purple-700 text-white p-6 md:p-8 relative overflow-hidden flex-shrink-0">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                    <div class="relative flex items-center justify-between flex-wrap gap-4">
+                        <div class="flex items-center gap-5">
+                            <div class="w-14 h-14 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                                <i id="generatorIcon" class="fas fa-brain text-2xl"></i>
+                            </div>
                             <div>
-                                <h2 id="generatorTitle" class="text-2xl font-bold">Gerador</h2>
-                                <p id="generatorDescription" class="text-blue-100 text-sm">Descrição</p>
+                                <h2 id="generatorTitle" class="text-2xl md:text-3xl font-bold">Gerador</h2>
+                                <p id="generatorDescription" class="text-primary-100 text-sm mt-1">Descrição</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="flex-1 overflow-y-auto p-6">
+                
+                <!-- Generator Form -->
+                <div class="flex-1 overflow-y-auto p-6 md:p-8 bg-gradient-to-b from-surface-50 to-white">
                     <form id="generatorForm" class="max-w-4xl mx-auto space-y-6"></form>
                 </div>
-                <div class="bg-gray-50 border-t p-6 flex-shrink-0">
+                
+                <!-- Generator Footer -->
+                <div class="bg-white border-t border-surface-200 p-5 md:p-6 flex-shrink-0 shadow-lg">
                     <div class="max-w-4xl mx-auto flex flex-col sm:flex-row gap-4 justify-between items-center">
-                        <div class="text-sm text-gray-600 hidden sm:block" id="providerIndicator">
-                            <i class="fas fa-shield-alt text-blue-600 mr-2"></i>Modo Padrão
+                        <div class="text-sm text-gray-500 hidden sm:flex items-center gap-2" id="providerIndicator">
+                            <div class="w-2 h-2 bg-surface-300 rounded-full"></div>
+                            <span>Modo Padrão</span>
                         </div>
-                        <div class="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
-                            <button type="button" onclick="resetForm()" class="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg">
+                        <div class="flex flex-wrap gap-3 w-full sm:w-auto justify-end">
+                            <button type="button" onclick="resetForm()" class="px-5 py-2.5 text-gray-600 hover:text-gray-800 bg-surface-100 hover:bg-surface-200 rounded-xl font-medium transition-colors">
                                 <i class="fas fa-undo mr-2"></i>Limpar
                             </button>
                             
-                            <button type="button" onclick="handleGeneratePromptOnly()" class="px-4 py-2 bg-white text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 font-semibold shadow-sm transition-transform active:scale-95">
+                            <button type="button" onclick="handleGeneratePromptOnly()" class="px-5 py-2.5 bg-white text-primary-600 border-2 border-primary-200 rounded-xl hover:bg-primary-50 hover:border-primary-300 font-semibold transition-all">
                                 <i class="fas fa-copy mr-2"></i>Copiar Prompt
                             </button>
 
-                            <button type="submit" form="generatorForm" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow-md transition-transform active:scale-95">
-                                <i class="fas fa-magic mr-2"></i>Gerar com IA
+                            <button type="submit" form="generatorForm" class="btn-primary text-white px-6 py-2.5 rounded-xl font-semibold">
+                                <i class="fas fa-wand-magic-sparkles mr-2"></i>Gerar com IA
                             </button>
                         </div>
                     </div>
@@ -228,328 +387,415 @@
             </div>
         </main>
     </div>
-
-    <div id="resultModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-t-xl flex items-center justify-between">
-                <h3 class="text-lg font-bold">Resultado</h3>
-                <button onclick="closeModal()" class="text-white/80 hover:text-white">
+    <!-- RESULT MODAL -->
+    <div id="resultModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col scale-in overflow-hidden">
+            <div class="bg-gradient-to-r from-primary-600 via-primary-700 to-purple-700 text-white p-5 md:p-6 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-sparkles text-lg"></i>
+                    </div>
+                    <h3 class="text-xl font-bold">Resultado Gerado</h3>
+                </div>
+                <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-colors">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             
-            <div class="flex-1 overflow-y-auto p-6 relative">
+            <div class="flex-1 overflow-y-auto p-6 md:p-8 relative bg-surface-50">
                 <div id="loadingState" class="hidden absolute inset-0 bg-white flex flex-col items-center justify-center z-10">
-                    <div class="loader mb-4"></div>
-                    <p class="text-gray-600 font-medium animate-pulse">A IA está pensando...</p>
-                    <p class="text-xs text-gray-400 mt-2" id="loadingText">Consultando provedor...</p>
+                    <div class="loader mb-5"></div>
+                    <p class="text-gray-700 font-semibold text-lg pulse-ring">A IA está pensando...</p>
+                    <p class="text-sm text-gray-400 mt-2" id="loadingText">Consultando provedor...</p>
                 </div>
 
-                <div id="aiContent" class="markdown-body text-gray-800 whitespace-pre-wrap"></div>
+                <div id="aiContent" class="markdown-body text-gray-700 bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-surface-200"></div>
             </div>
 
-            <div class="p-6 border-t bg-gray-50 rounded-b-xl flex justify-end gap-3">
-                <button onclick="copyContent()" class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+            <div class="p-5 md:p-6 border-t border-surface-200 bg-white flex justify-end gap-3">
+                <button onclick="copyContent()" class="px-5 py-2.5 bg-surface-100 hover:bg-surface-200 text-gray-700 rounded-xl font-medium transition-colors">
                     <i class="fas fa-copy mr-2"></i>Copiar Texto
                 </button>
-                <button onclick="closeModal()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                <button onclick="closeModal()" class="btn-primary text-white px-6 py-2.5 rounded-xl font-semibold">
                     Fechar
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="masterPromptModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
-            <div class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-6 rounded-t-xl flex items-center justify-between">
-                <h3 class="text-xl font-bold"><i class="fas fa-brain mr-2"></i>Prompt Mestre</h3>
-                <button onclick="closeMasterPrompt()" class="text-white/80 hover:text-white">
+    <!-- MASTER PROMPT MODAL -->
+    <div id="masterPromptModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col scale-in overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-600 to-primary-600 text-white p-5 md:p-6 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-brain text-lg"></i>
+                    </div>
+                    <h3 class="text-xl font-bold">Prompt Mestre</h3>
+                </div>
+                <button onclick="closeMasterPrompt()" class="w-10 h-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-colors">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-            <div class="flex-1 overflow-y-auto p-6">
-                <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                    <pre id="masterPromptText" class="text-sm text-gray-800 whitespace-pre-wrap"></pre>
+            <div class="flex-1 overflow-y-auto p-6 md:p-8 bg-surface-50">
+                <div class="bg-white rounded-2xl p-6 border border-surface-200 shadow-sm">
+                    <pre id="masterPromptText" class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed"></pre>
                 </div>
             </div>
         </div>
     </div>
-
-    <div id="personalizationModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col">
-            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 rounded-t-xl flex items-center justify-between">
-                <h3 class="text-xl font-bold"><i class="fas fa-user-cog mr-2"></i>Personalizar Dados</h3>
-                <button onclick="closePersonalizationModal()" class="text-white/80 hover:text-white">
+    <!-- PERSONALIZATION MODAL -->
+    <div id="personalizationModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col scale-in overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-5 md:p-6 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-user-cog text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold">Personalizar Dados</h3>
+                        <p class="text-purple-100 text-sm">Informações para contextualizar os conteúdos</p>
+                    </div>
+                </div>
+                <button onclick="closePersonalizationModal()" class="w-10 h-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-colors">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-            <div class="flex-1 overflow-y-auto p-6">
-                <form id="personalizationForm" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Nome do(a) Professor(a)</label>
-                            <input type="text" name="professorName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+            <div class="flex-1 overflow-y-auto p-6 md:p-8 bg-surface-50">
+                <form id="personalizationForm" class="space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">Nome do(a) Professor(a)</label>
+                            <input type="text" name="professorName" class="w-full px-4 py-3 bg-white border-2 border-surface-200 rounded-xl input-modern" placeholder="Seu nome completo">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Nome da Escola</label>
-                            <input type="text" name="schoolName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">Nome da Escola</label>
+                            <input type="text" name="schoolName" class="w-full px-4 py-3 bg-white border-2 border-surface-200 rounded-xl input-modern" placeholder="Nome da instituição">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Ano Letivo</label>
-                            <input type="text" name="schoolYear" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">Ano Letivo</label>
+                            <input type="text" name="schoolYear" class="w-full px-4 py-3 bg-white border-2 border-surface-200 rounded-xl input-modern" placeholder="Ex: 2026">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Unidade Didática</label>
-                            <input type="text" name="didacticUnit" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">Unidade Didática</label>
+                            <input type="text" name="didacticUnit" class="w-full px-4 py-3 bg-white border-2 border-surface-200 rounded-xl input-modern" placeholder="Ex: Unidade 1">
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="p-6 border-t bg-gray-50 rounded-b-xl">
+            <div class="p-5 md:p-6 border-t border-surface-200 bg-white">
                 <div class="flex justify-end gap-3">
-                    <button onclick="closePersonalizationModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancelar</button>
-                    <button onclick="savePersonalization()" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold">Salvar Dados</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="apiKeyModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden">
-            <div class="bg-emerald-600 text-white p-4 flex justify-between items-center">
-                <h3 class="text-lg font-bold"><i class="fas fa-plug mr-2"></i>Configurar API</h3>
-                <button onclick="document.getElementById('apiKeyModal').classList.add('hidden')" class="text-white hover:text-gray-200"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="p-6 space-y-4">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Provedor</label>
-                    <select id="providerSelect" class="w-full border rounded-lg p-2" onchange="toggleCustomFields()">
-                        <option value="gemini">Google Gemini (Grátis)</option>
-                        <option value="groq">Groq (Grátis/Rápido)</option>
-                        <option value="openai">OpenAI (GPT-4)</option>
-                        <option value="deepseek">DeepSeek</option>
-                        <option value="anthropic">Claude (Oficial)</option>
-                        <option value="openrouter">OpenRouter (Universal)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Chave API (Key)</label>
-                    <input type="password" id="apiKeyInput" class="w-full border rounded-lg p-2" placeholder="Cole sua chave aqui...">
-                </div>
-                <div id="customFields" class="hidden">
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Modelo</label>
-                    <input type="text" id="modelInput" class="w-full border rounded-lg p-2 text-sm">
-                </div>
-            </div>
-            <div class="p-4 border-t flex justify-end gap-2">
-                <button onclick="document.getElementById('apiKeyModal').classList.add('hidden')" class="px-4 py-2 text-gray-600">Cancelar</button>
-                <button onclick="saveApiConfig()" class="px-4 py-2 bg-emerald-600 text-white rounded-lg">Salvar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="tutorialModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
-            <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col">
-                <div class="bg-gradient-to-r from-cyan-600 to-blue-600 text-white p-6 rounded-t-xl flex justify-between">
-                    <h3 class="text-xl font-bold">Como obter a Chave API</h3>
-                    <button onclick="closeTutorialModal()" class="text-white hover:text-gray-200">
-                        <i class="fas fa-times text-xl"></i>
+                    <button onclick="closePersonalizationModal()" class="px-5 py-2.5 text-gray-600 hover:text-gray-800 bg-surface-100 hover:bg-surface-200 rounded-xl font-medium transition-colors">Cancelar</button>
+                    <button onclick="savePersonalization()" class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all">
+                        <i class="fas fa-save mr-2"></i>Salvar Dados
                     </button>
                 </div>
-                
-                <div class="flex-1 overflow-y-auto p-6 space-y-6">
-                    <div class="bg-blue-50 p-4 rounded border border-blue-200">
-                        <p class="text-blue-800 text-sm"><strong>O que é isso?</strong> É uma "senha" gratuita que conecta o app à inteligência do Google ou outras IAs.</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-bold text-gray-800">1. Google Gemini (Recomendado)</h4>
-                        <ol class="list-decimal ml-5 text-sm text-gray-600 space-y-1">
-                            <li>Acesse <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-600 underline">Google AI Studio</a>.</li>
-                            <li>Clique em <strong>Create API Key</strong>.</li>
-                            <li>Copie o código gerado e cole no app.</li>
-                        </ol>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-bold text-gray-800">2. Groq (Muito Rápido)</h4>
-                        <ol class="list-decimal ml-5 text-sm text-gray-600 space-y-1">
-                            <li>Acesse <a href="https://console.groq.com/keys" target="_blank" class="text-blue-600 underline">Groq Console</a>.</li>
-                            <li>Crie uma chave e cole no app.</li>
-                        </ol>
-                        
-                        <div class="mt-4 pt-4 border-t border-gray-100 text-center">
-                            <p class="text-sm text-gray-600">
-                                Se preferir gerar apenas o Prompt, leve para o 
-                                <a href="https://claude.ai" target="_blank" class="text-blue-600 font-bold hover:underline">claude.ai</a> 
-                                (testado)
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="p-4 border-t flex justify-end">
-                    <button onclick="closeTutorialModal()" class="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 font-medium">Entendi</button>
-                </div>
             </div>
         </div>
+    </div>
 
-    <div id="guideModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
-            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-t-xl flex justify-between items-center">
-                <div>
-                    <h3 class="text-xl font-bold"><i class="fas fa-book-reader mr-2"></i>Guia Didático dos Geradores</h3>
-                    <p class="text-indigo-100 text-sm mt-1">Entenda o funcionamento pedagógico de cada ferramenta.</p>
+    <!-- API KEY MODAL -->
+    <div id="apiKeyModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden scale-in">
+            <div class="bg-gradient-to-r from-accent-500 to-accent-600 text-white p-5 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-plug text-lg"></i>
+                    </div>
+                    <h3 class="text-lg font-bold">Configurar API</h3>
                 </div>
-                <button onclick="closeGuideModal()" class="text-white hover:text-gray-200">
+                <button onclick="document.getElementById('apiKeyModal').classList.add('hidden')" class="w-8 h-8 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-5">
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-gray-700">Provedor de IA</label>
+                    <select id="providerSelect" class="w-full px-4 py-3 bg-surface-50 border-2 border-surface-200 rounded-xl input-modern cursor-pointer" onchange="toggleCustomFields()">
+                        <option value="gemini">🌟 Google Gemini (Grátis)</option>
+                        <option value="groq">⚡ Groq (Grátis/Rápido)</option>
+                        <option value="openai">🤖 OpenAI (GPT-4)</option>
+                        <option value="deepseek">🔍 DeepSeek</option>
+                        <option value="anthropic">🧠 Claude (Anthropic)</option>
+                        <option value="openrouter">🌐 OpenRouter (Universal)</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-gray-700">Chave API (Key)</label>
+                    <div class="relative">
+                        <i class="fas fa-key absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="password" id="apiKeyInput" class="w-full pl-11 pr-4 py-3 bg-surface-50 border-2 border-surface-200 rounded-xl input-modern" placeholder="Cole sua chave aqui...">
+                    </div>
+                </div>
+                <div id="customFields" class="hidden space-y-2">
+                    <label class="block text-sm font-semibold text-gray-700">Modelo</label>
+                    <input type="text" id="modelInput" class="w-full px-4 py-3 bg-surface-50 border-2 border-surface-200 rounded-xl input-modern text-sm">
+                </div>
+            </div>
+            <div class="p-5 border-t border-surface-200 bg-surface-50 flex justify-end gap-3">
+                <button onclick="document.getElementById('apiKeyModal').classList.add('hidden')" class="px-5 py-2.5 text-gray-600 hover:text-gray-800 font-medium transition-colors">Cancelar</button>
+                <button onclick="saveApiConfig()" class="btn-secondary text-white px-6 py-2.5 rounded-xl font-semibold">
+                    <i class="fas fa-check mr-2"></i>Salvar
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- TUTORIAL MODAL -->
+    <div id="tutorialModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col scale-in overflow-hidden">
+            <div class="bg-gradient-to-r from-cyan-500 to-primary-600 text-white p-5 md:p-6 flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-key text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold">Como obter a Chave API</h3>
+                        <p class="text-cyan-100 text-sm">Guia passo a passo</p>
+                    </div>
+                </div>
+                <button onclick="closeTutorialModal()" class="w-10 h-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-colors">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             
-            <div class="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50">
+            <div class="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 bg-surface-50">
+                <div class="bg-gradient-to-r from-primary-50 to-cyan-50 p-5 rounded-2xl border border-primary-100">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-info-circle text-primary-600"></i>
+                        </div>
+                        <p class="text-primary-800 text-sm leading-relaxed"><strong>O que é isso?</strong> É uma "senha" gratuita que conecta o app à inteligência do Google ou outras IAs. Você cria uma vez e usa para sempre.</p>
+                    </div>
+                </div>
                 
-                <div class="bg-white p-5 rounded-lg shadow-sm border-l-4 border-yellow-500">
-                    <div class="flex items-start gap-4">
-                        <div class="bg-yellow-100 p-3 rounded-full text-yellow-600"><i class="fas fa-star text-xl"></i></div>
-                        <div>
+                <div class="bg-white p-6 rounded-2xl border border-surface-200 shadow-sm">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+                            <span class="text-amber-600 font-bold">1</span>
+                        </div>
+                        <h4 class="font-bold text-gray-800 text-lg">Google Gemini (Recomendado)</h4>
+                        <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Grátis</span>
+                    </div>
+                    <ol class="list-decimal ml-5 text-sm text-gray-600 space-y-2">
+                        <li>Acesse <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-primary-600 font-semibold hover:underline">Google AI Studio</a></li>
+                        <li>Clique em <strong class="text-gray-800">Create API Key</strong></li>
+                        <li>Copie o código gerado e cole no app</li>
+                    </ol>
+                </div>
+                
+                <div class="bg-white p-6 rounded-2xl border border-surface-200 shadow-sm">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+                            <span class="text-amber-600 font-bold">2</span>
+                        </div>
+                        <h4 class="font-bold text-gray-800 text-lg">Groq (Muito Rápido)</h4>
+                        <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full">Rápido</span>
+                    </div>
+                    <ol class="list-decimal ml-5 text-sm text-gray-600 space-y-2">
+                        <li>Acesse <a href="https://console.groq.com/keys" target="_blank" class="text-primary-600 font-semibold hover:underline">Groq Console</a></li>
+                        <li>Crie uma chave e cole no app</li>
+                    </ol>
+                </div>
+                
+                <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-2xl border border-purple-100 text-center">
+                    <p class="text-sm text-gray-600">
+                        Prefere gerar apenas o Prompt? Leve para o 
+                        <a href="https://claude.ai" target="_blank" class="text-purple-600 font-bold hover:underline">claude.ai</a> 
+                        (testado e aprovado!)
+                    </p>
+                </div>
+            </div>
+            
+            <div class="p-5 border-t border-surface-200 bg-white flex justify-end">
+                <button onclick="closeTutorialModal()" class="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-primary-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all">
+                    <i class="fas fa-check mr-2"></i>Entendi
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- GUIDE MODAL -->
+    <div id="guideModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col scale-in overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-600 via-indigo-600 to-primary-600 text-white p-5 md:p-6 flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-book-reader text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold">Guia Didático dos Geradores</h3>
+                        <p class="text-purple-100 text-sm">Entenda o funcionamento pedagógico de cada ferramenta</p>
+                    </div>
+                </div>
+                <button onclick="closeGuideModal()" class="w-10 h-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6 md:p-8 space-y-5 bg-surface-50">
+                
+                <!-- Avaliação Formativa Mestre -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-amber-400 card-hover">
+                    <div class="flex items-start gap-5">
+                        <div class="w-14 h-14 bg-gradient-to-br from-amber-100 to-amber-200 rounded-2xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-star text-2xl text-amber-600"></i>
+                        </div>
+                        <div class="flex-1">
                             <h4 class="text-lg font-bold text-gray-800 mb-2">Avaliação Formativa Mestre</h4>
-                            <p class="text-sm text-gray-600 mb-3"><strong>O que é:</strong> Um construtor de provas e testes de alta complexidade pedagógica.</p>
+                            <p class="text-sm text-gray-500 mb-4">Um construtor de provas e testes de alta complexidade pedagógica.</p>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div class="bg-gray-50 p-3 rounded">
-                                    <strong class="text-gray-700 block mb-1">Para que serve?</strong>
-                                    Para criar avaliações que vão além da memorização. Ela utiliza a Taxonomia de Bloom para garantir que o aluno analise, compreenda e aplique o conhecimento.
+                                <div class="bg-surface-50 p-4 rounded-xl">
+                                    <strong class="text-gray-700 block mb-2">Para que serve?</strong>
+                                    <p class="text-gray-600 leading-relaxed">Para criar avaliações que vão além da memorização. Utiliza a Taxonomia de Bloom para garantir que o aluno analise, compreenda e aplique o conhecimento.</p>
                                 </div>
-                                <div class="bg-gray-50 p-3 rounded">
-                                    <strong class="text-gray-700 block mb-1">Como usar:</strong>
-                                    No campo "Distribuição Bloom", defina quantos níveis você quer (ex: "2 Lembrar, 3 Analisar"). Detalhe bem o contexto da turma para que a IA calibre a linguagem.
+                                <div class="bg-surface-50 p-4 rounded-xl">
+                                    <strong class="text-gray-700 block mb-2">Como usar:</strong>
+                                    <p class="text-gray-600 leading-relaxed">No campo "Distribuição Bloom", defina quantos níveis você quer (ex: "2 Lembrar, 3 Analisar"). Detalhe bem o contexto da turma.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-lg shadow-sm border-l-4 border-emerald-500">
-                    <div class="flex items-start gap-4">
-                        <div class="bg-emerald-100 p-3 rounded-full text-emerald-600"><i class="fas fa-user-md text-xl"></i></div>
-                        <div>
+                <!-- Avaliação Diagnóstica -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-emerald-400 card-hover">
+                    <div class="flex items-start gap-5">
+                        <div class="w-14 h-14 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-user-md text-2xl text-emerald-600"></i>
+                        </div>
+                        <div class="flex-1">
                             <h4 class="text-lg font-bold text-gray-800 mb-2">Avaliação Diagnóstica (Sondagem)</h4>
-                            <p class="text-sm text-gray-600 mb-3"><strong>O que é:</strong> Uma ferramenta para descobrir o que o aluno sabe (ou não sabe) antes de começar um conteúdo novo.</p>
+                            <p class="text-sm text-gray-500 mb-4">Ferramenta para descobrir o que o aluno sabe antes de começar um conteúdo novo.</p>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div class="bg-gray-50 p-3 rounded">
-                                    <strong class="text-gray-700 block mb-1">Para que serve?</strong>
-                                    Para identificar lacunas de aprendizagem de anos anteriores. Diferente da prova comum, o foco aqui é encontrar pré-requisitos não consolidados.
+                                <div class="bg-surface-50 p-4 rounded-xl">
+                                    <strong class="text-gray-700 block mb-2">Para que serve?</strong>
+                                    <p class="text-gray-600 leading-relaxed">Para identificar lacunas de aprendizagem de anos anteriores. O foco é encontrar pré-requisitos não consolidados.</p>
                                 </div>
-                                <div class="bg-gray-50 p-3 rounded">
-                                    <strong class="text-gray-700 block mb-1">Como usar:</strong>
-                                    O campo mais importante é "Séries Anteriores". Se seu aluno está no 8º ano, peça para sondar conteúdos do 6º e 7º ano. Evite pedir questões de "criação" aqui; foque em compreensão básica.
+                                <div class="bg-surface-50 p-4 rounded-xl">
+                                    <strong class="text-gray-700 block mb-2">Como usar:</strong>
+                                    <p class="text-gray-600 leading-relaxed">O campo "Séries Anteriores" é importante. Se seu aluno está no 8º ano, peça para sondar conteúdos do 6º e 7º ano.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-lg shadow-sm border-l-4 border-blue-500">
-                    <div class="flex items-start gap-4">
-                        <div class="bg-blue-100 p-3 rounded-full text-blue-600"><i class="fas fa-chalkboard-teacher text-xl"></i></div>
-                        <div>
+                <!-- Plano de Aula -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-primary-400 card-hover">
+                    <div class="flex items-start gap-5">
+                        <div class="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-chalkboard-teacher text-2xl text-primary-600"></i>
+                        </div>
+                        <div class="flex-1">
                             <h4 class="text-lg font-bold text-gray-800 mb-2">Plano de Aula</h4>
-                            <p class="text-sm text-gray-600 mb-3"><strong>O que é:</strong> O roteiro detalhado para um dia letivo ou um encontro específico.</p>
+                            <p class="text-sm text-gray-500 mb-4">O roteiro detalhado para um dia letivo ou um encontro específico.</p>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div class="bg-gray-50 p-3 rounded">
-                                    <strong class="text-gray-700 block mb-1">Para que serve?</strong>
-                                    Organizar o tempo, definir a metodologia e garantir que a aula tenha início, meio e fim alinhados à BNCC.
+                                <div class="bg-surface-50 p-4 rounded-xl">
+                                    <strong class="text-gray-700 block mb-2">Para que serve?</strong>
+                                    <p class="text-gray-600 leading-relaxed">Organizar o tempo, definir a metodologia e garantir que a aula tenha início, meio e fim alinhados à BNCC.</p>
                                 </div>
-                                <div class="bg-gray-50 p-3 rounded">
-                                    <strong class="text-gray-700 block mb-1">Como usar:</strong>
-                                    Seja específico na duração (ex: 50 min). No campo metodologia, escolha se quer uma aula expositiva ou ativa (ex: rotação por estações).
+                                <div class="bg-surface-50 p-4 rounded-xl">
+                                    <strong class="text-gray-700 block mb-2">Como usar:</strong>
+                                    <p class="text-gray-600 leading-relaxed">Seja específico na duração (ex: 50 min). No campo metodologia, escolha se quer uma aula expositiva ou ativa.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="bg-white p-5 rounded-lg shadow-sm border-l-4 border-purple-500">
-                    <div class="flex items-start gap-4">
-                        <div class="bg-purple-100 p-3 rounded-full text-purple-600"><i class="fas fa-list-ol text-xl"></i></div>
-                        <div>
+                <!-- Sequência Didática -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-purple-400 card-hover">
+                    <div class="flex items-start gap-5">
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-list-ol text-2xl text-purple-600"></i>
+                        </div>
+                        <div class="flex-1">
                             <h4 class="text-lg font-bold text-gray-800 mb-2">Sequência Didática</h4>
-                            <p class="text-sm text-gray-600 mb-3"><strong>O que é:</strong> Um conjunto de aulas encadeadas sobre o mesmo tema.</p>
+                            <p class="text-sm text-gray-500 mb-4">Um conjunto de aulas encadeadas sobre o mesmo tema.</p>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div class="bg-gray-50 p-3 rounded">
-                                    <strong class="text-gray-700 block mb-1">Para que serve?</strong>
-                                    Para aprofundar um assunto que não cabe em uma só aula. Permite evolução gradual da dificuldade.
+                                <div class="bg-surface-50 p-4 rounded-xl">
+                                    <strong class="text-gray-700 block mb-2">Para que serve?</strong>
+                                    <p class="text-gray-600 leading-relaxed">Para aprofundar um assunto que não cabe em uma só aula. Permite evolução gradual da dificuldade.</p>
                                 </div>
-                                <div class="bg-gray-50 p-3 rounded">
-                                    <strong class="text-gray-700 block mb-1">Como usar:</strong>
-                                    Defina o número de aulas (ex: 5 aulas). A IA irá dividir o conteúdo: introdução nas primeiras, desenvolvimento no meio e avaliação/conclusão na última.
+                                <div class="bg-surface-50 p-4 rounded-xl">
+                                    <strong class="text-gray-700 block mb-2">Como usar:</strong>
+                                    <p class="text-gray-600 leading-relaxed">Defina o número de aulas (ex: 5 aulas). A IA irá dividir o conteúdo: introdução, desenvolvimento e conclusão.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-lg shadow-sm border-l-4 border-orange-500">
-                    <div class="flex items-start gap-4">
-                        <div class="bg-orange-100 p-3 rounded-full text-orange-600"><i class="fas fa-project-diagram text-xl"></i></div>
-                        <div>
+                <!-- Projeto Didático -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-orange-400 card-hover">
+                    <div class="flex items-start gap-5">
+                        <div class="w-14 h-14 bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-project-diagram text-2xl text-orange-600"></i>
+                        </div>
+                        <div class="flex-1">
                             <h4 class="text-lg font-bold text-gray-800 mb-2">Projeto Didático</h4>
-                            <p class="text-sm text-gray-600 mb-3"><strong>O que é:</strong> Um trabalho de longo prazo, geralmente interdisciplinar, focado em resolver um problema real.</p>
+                            <p class="text-sm text-gray-500 mb-4">Um trabalho de longo prazo, geralmente interdisciplinar, focado em resolver um problema real.</p>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div class="bg-gray-50 p-3 rounded">
-                                    <strong class="text-gray-700 block mb-1">Para que serve?</strong>
-                                    Engajar alunos na construção de um "Produto Final" (ex: uma feira, um livro, um vídeo). Ótimo para feiras de ciências.
+                                <div class="bg-surface-50 p-4 rounded-xl">
+                                    <strong class="text-gray-700 block mb-2">Para que serve?</strong>
+                                    <p class="text-gray-600 leading-relaxed">Engajar alunos na construção de um "Produto Final" (ex: uma feira, um livro, um vídeo). Ótimo para feiras de ciências.</p>
                                 </div>
-                                <div class="bg-gray-50 p-3 rounded">
-                                    <strong class="text-gray-700 block mb-1">Como usar:</strong>
-                                    O campo "Problema" é vital. Defina uma questão instigante (ex: "Como reduzir o lixo na escola?").
+                                <div class="bg-surface-50 p-4 rounded-xl">
+                                    <strong class="text-gray-700 block mb-2">Como usar:</strong>
+                                    <p class="text-gray-600 leading-relaxed">O campo "Problema" é vital. Defina uma questão instigante (ex: "Como reduzir o lixo na escola?").</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                 <div class="bg-white p-5 rounded-lg shadow-sm border-l-4 border-gray-400">
-                    <h4 class="text-lg font-bold text-gray-800 mb-4">Outras Ferramentas Rápidas</h4>
+                <!-- Outras Ferramentas -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-surface-200">
+                    <h4 class="text-lg font-bold text-gray-800 mb-5 flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-toolbox text-gray-600"></i>
+                        </div>
+                        Outras Ferramentas Rápidas
+                    </h4>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                        <div class="bg-gray-50 p-3 rounded">
-                            <strong class="text-blue-700"><i class="fas fa-book mr-1"></i> Plano de Curso:</strong>
-                            Planejamento macro (anual ou semestral). Divide o ano em 3 grandes unidades.
+                        <div class="bg-surface-50 p-4 rounded-xl">
+                            <strong class="text-primary-700 flex items-center gap-2 mb-1"><i class="fas fa-book"></i> Plano de Curso:</strong>
+                            <p class="text-gray-600">Planejamento macro (anual ou semestral). Divide o ano em 3 grandes unidades.</p>
                         </div>
-                        <div class="bg-gray-50 p-3 rounded">
-                            <strong class="text-blue-700"><i class="fas fa-layer-group mr-1"></i> Plano de Unidade:</strong>
-                            Planejamento médio. Foca em um capítulo ou tema específico do bimestre.
+                        <div class="bg-surface-50 p-4 rounded-xl">
+                            <strong class="text-primary-700 flex items-center gap-2 mb-1"><i class="fas fa-layer-group"></i> Plano de Unidade:</strong>
+                            <p class="text-gray-600">Planejamento médio. Foca em um capítulo ou tema específico do bimestre.</p>
                         </div>
-                        <div class="bg-gray-50 p-3 rounded">
-                            <strong class="text-blue-700"><i class="fas fa-tasks mr-1"></i> Atividade:</strong>
-                            Gera um exercício único e prático para sala de aula ou casa.
+                        <div class="bg-surface-50 p-4 rounded-xl">
+                            <strong class="text-primary-700 flex items-center gap-2 mb-1"><i class="fas fa-tasks"></i> Atividade:</strong>
+                            <p class="text-gray-600">Gera um exercício único e prático para sala de aula ou casa.</p>
                         </div>
-                        <div class="bg-gray-50 p-3 rounded">
-                            <strong class="text-blue-700"><i class="fas fa-clipboard-check mr-1"></i> Avaliação Simples:</strong>
-                            Cria provas tradicionais, rubricas ou roteiros de observação.
+                        <div class="bg-surface-50 p-4 rounded-xl">
+                            <strong class="text-primary-700 flex items-center gap-2 mb-1"><i class="fas fa-clipboard-check"></i> Avaliação Simples:</strong>
+                            <p class="text-gray-600">Cria provas tradicionais, rubricas ou roteiros de observação.</p>
                         </div>
-                        <div class="bg-gray-50 p-3 rounded">
-                            <strong class="text-blue-700"><i class="fas fa-question-circle mr-1"></i> Quiz:</strong>
-                            Perguntas rápidas de múltipla escolha para revisão ou gamificação.
+                        <div class="bg-surface-50 p-4 rounded-xl">
+                            <strong class="text-primary-700 flex items-center gap-2 mb-1"><i class="fas fa-question-circle"></i> Quiz:</strong>
+                            <p class="text-gray-600">Perguntas rápidas de múltipla escolha para revisão ou gamificação.</p>
                         </div>
-                        <div class="bg-gray-50 p-3 rounded">
-                            <strong class="text-blue-700"><i class="fas fa-gamepad mr-1"></i> Jogo Educativo:</strong>
-                            Cria regras e mecânicas para transformar o conteúdo em brincadeira (tabuleiro, cartas, etc).
+                        <div class="bg-surface-50 p-4 rounded-xl">
+                            <strong class="text-primary-700 flex items-center gap-2 mb-1"><i class="fas fa-gamepad"></i> Jogo Educativo:</strong>
+                            <p class="text-gray-600">Cria regras e mecânicas para transformar o conteúdo em brincadeira.</p>
                         </div>
-                         <div class="bg-gray-50 p-3 rounded">
-                            <strong class="text-blue-700"><i class="fas fa-globe-americas mr-1"></i> Temas Transversais:</strong>
-                            Insere temas sociais (meio ambiente, ética) dentro da sua disciplina padrão.
+                        <div class="bg-surface-50 p-4 rounded-xl col-span-1 sm:col-span-2">
+                            <strong class="text-primary-700 flex items-center gap-2 mb-1"><i class="fas fa-globe-americas"></i> Temas Transversais:</strong>
+                            <p class="text-gray-600">Insere temas sociais (meio ambiente, ética) dentro da sua disciplina padrão.</p>
                         </div>
                     </div>
                 </div>
 
             </div>
             
-            <div class="p-4 border-t bg-gray-50 flex justify-end">
-                <button onclick="closeGuideModal()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium">Entendi, obrigado!</button>
+            <div class="p-5 border-t border-surface-200 bg-white flex justify-end">
+                <button onclick="closeGuideModal()" class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-primary-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all">
+                    <i class="fas fa-check mr-2"></i>Entendi, obrigado!
+                </button>
             </div>
         </div>
     </div>
-
     <script>
         // -----------------------------------------------------
         // 1. DADOS & PROMPT MESTRE
@@ -737,6 +983,24 @@ Sempre que criar qualquer conteúdo educacional, certifique-se de que está cont
                 prompt: (data) => `${MASTER_PROMPT}\nDesenvolva um(a) ${data.tipo_conteudo} sobre Tema Transversal:\nTema: ${data.tema}\nEtapa: ${data.etapa}\nSérie: ${data.serie}\nÁrea: ${data.area}\nContexto: ${data.contexto}\nMetodologia: ${data.metodologia}\nDuração: ${data.duracao} aulas\nObjetivo: ${data.objetivo}\n\nImportante: Trabalhe de forma integrada, promovendo reflexão crítica e cidadania.`
             },
             {
+                id: 'av-diagnostica',
+                icon: 'fa-user-md',
+                title: 'Avaliação Diagnóstica (Sondagem)',
+                description: 'Identifique lacunas de aprendizagem de anos anteriores',
+                fields: [
+                    { type: 'select', name: 'etapa', label: 'Etapa de Ensino', required: true, options: ['Educação Infantil', 'Ensino Fundamental I', 'Ensino Fundamental II', 'Ensino Médio'] },
+                    { type: 'text', name: 'serie', label: 'Série/Ano Atual', required: true, placeholder: 'Ex: 8º ano' },
+                    { type: 'select', name: 'area', label: 'Área do Conhecimento', required: true, options: ['Linguagens', 'Matemática', 'Ciências da Natureza', 'Ciências Humanas', 'Ensino Religioso'] },
+                    { type: 'text', name: 'disciplina', label: 'Disciplina', required: true, placeholder: 'Ex: Matemática' },
+                    { type: 'text', name: 'series_anteriores', label: 'Séries Anteriores para Sondar', required: true, placeholder: 'Ex: 6º e 7º ano' },
+                    { type: 'textarea', name: 'conteudos', label: 'Conteúdos/Habilidades a Sondar', required: true, placeholder: 'Ex: Operações com frações, equações de 1º grau...' },
+                    { type: 'number', name: 'questoes', label: 'Número de Questões', placeholder: '10' },
+                    { type: 'select', name: 'formato', label: 'Formato das Questões', options: ['Múltipla Escolha', 'Dissertativas Curtas', 'Misto', 'Resolução de Problemas'] },
+                    { type: 'textarea', name: 'contexto', label: 'Contexto da Turma', placeholder: 'Ex: Turma heterogênea, alunos com dificuldades em leitura...' }
+                ],
+                prompt: (data) => `${MASTER_PROMPT}\n\nCrie uma AVALIAÇÃO DIAGNÓSTICA (SONDAGEM) completa:\n\nCONTEXTO:\n- Etapa: ${data.etapa}\n- Série Atual: ${data.serie}\n- Área: ${data.area}\n- Disciplina: ${data.disciplina}\n- Séries Anteriores para Sondar: ${data.series_anteriores}\n- Conteúdos/Habilidades: ${data.conteudos}\n- Número de Questões: ${data.questoes}\n- Formato: ${data.formato}\n- Contexto da Turma: ${data.contexto}\n\nOBJETIVO:\nIdentificar LACUNAS DE APRENDIZAGEM e PRÉ-REQUISITOS NÃO CONSOLIDADOS de anos anteriores, permitindo ao professor planejar intervenções pedagógicas adequadas.\n\nESTRUTURA OBRIGATÓRIA:\n1. Cabeçalho com identificação\n2. Instruções claras para o aluno\n3. Questões organizadas por habilidade/conteúdo sondado\n4. Para cada questão, indicar:\n   - Habilidade BNCC relacionada\n   - Série de origem do conteúdo\n   - Nível cognitivo (Lembrar/Compreender/Aplicar)\n5. Gabarito comentado\n6. Matriz de análise para o professor (tabela para registrar acertos/erros por habilidade)\n7. Sugestões de intervenção para cada lacuna identificada\n\nIMPORTANTE:\n- Foque em habilidades BÁSICAS e FUNDAMENTAIS\n- Evite questões de níveis cognitivos altos (Analisar, Avaliar, Criar)\n- Use linguagem acessível e contextualizada\n- Inclua questões de diferentes níveis de dificuldade dentro do básico`
+            },
+            {
                 id: 'av-formativa-mestre',
                 icon: 'fa-star',
                 title: 'Avaliação Formativa Mestre',
@@ -809,96 +1073,6 @@ RESTRIÇÕES:
 - NÃO criar avaliações meramente conteudistas.
 
 CRITÉRIO DE QUALIDADE:
-A avaliação deve ser suficientemente rigorosa para diagnosticar níveis reais de aprendizagem, apoiar intervenções pedagógicas e orientar a progressão do ensino.
-
-Agora, gere a avaliação com base nessas diretrizes.`
-            },
-            {
-                id: 'av-diagnostica',
-                icon: 'fa-user-md',
-                title: 'Avaliação Diagnóstica (Sondagem)',
-                description: 'Focado em pré-requisitos e lacunas de séries anteriores',
-                fields: [
-                    { type: 'text', name: 'etapa', label: 'Etapa de Ensino', required: true, placeholder: 'Ex: Ensino Fundamental II' },
-                    { type: 'text', name: 'anoAtual', label: 'Ano/Série ATUAL do aluno', required: true, placeholder: 'Ex: 8º Ano' },
-                    { type: 'text', name: 'area', label: 'Área do Conhecimento', required: true, placeholder: 'Ex: Ciências Humanas' },
-                    { type: 'text', name: 'componente', label: 'Componente Curricular', required: true, placeholder: 'Ex: História' },
-                    { type: 'textarea', name: 'seriesAnteriores', label: 'Série(s) ANTERIOR(ES) a sondar', required: true, placeholder: 'Obrigatório. Ex: 6º e 7º Anos (conteúdos que já deveriam saber)' },
-                    { type: 'textarea', name: 'unidades', label: 'Unidades Temáticas / Objetos', placeholder: 'Ex: O mundo antigo; Feudalismo...' },
-                    { type: 'text', name: 'bncc', label: 'Códigos BNCC (Séries Anteriores)', placeholder: 'Ex: (EF06HI01)...' },
-                    { type: 'number', name: 'quantidade', label: 'Quantidade de Questões', required: true, placeholder: '10' },
-                    { type: 'text', name: 'tipos', label: 'Tipos de Questões', placeholder: 'Ex: Múltipla escolha, Associação' },
-                    { type: 'text', name: 'bloom', label: 'Distribuição Bloom', placeholder: 'Ex: 4 Compreender, 4 Aplicar (Evite Criar)' },
-                    { type: 'text', name: 'dificuldade', label: 'Níveis de Dificuldade', placeholder: 'Ex: 5 Básicas, 3 Médias' },
-                    { type: 'textarea', name: 'contexto', label: 'Contexto Educacional', placeholder: 'Histórico da turma...' },
-                    { type: 'text', name: 'idioma', label: 'Idioma', required: true, placeholder: 'Português Brasileiro' }
-                ],
-                prompt: (data) => `Você é um ESPECIALISTA EM AVALIAÇÃO DIAGNÓSTICA, CURRÍCULO, BNCC E PROGRESSÃO DE APRENDIZAGENS, com domínio da Taxonomia de Bloom (revisada) e da avaliação formativa.
-
-OBJETIVO:
-Criar uma AVALIAÇÃO DE SONDAGEM (diagnóstica inicial) para verificar se os estudantes CONSTRUÍRAM os conhecimentos e habilidades essenciais das SÉRIES ANTERIORES, necessários para acompanhar a série em que estão matriculados.
-
-A avaliação NÃO é classificatória nem punitiva. Seu foco é:
-- Diagnosticar lacunas conceituais, procedimentais e cognitivas
-- Identificar níveis reais de aprendizagem
-- Subsidiar intervenções pedagógicas
-
-ENTRADAS OBRIGATÓRIAS DO USUÁRIO:
-1. Etapa de ensino: ${data.etapa}
-2. Ano/série atual do estudante: ${data.anoAtual}
-3. Área do conhecimento: ${data.area}
-4. Componente curricular: ${data.componente}
-5. Série(s) anterior(es) a serem sondadas: ${data.seriesAnteriores}
-6. Unidade(s) temática(s) e objetos de conhecimento essenciais das séries anteriores: ${data.unidades}
-7. Códigos de habilidades da BNCC (das séries anteriores): ${data.bncc}
-8. Quantidade total de questões: ${data.quantidade}
-9. Tipos de questões desejados: ${data.tipos}
-10. Distribuição por níveis da Taxonomia de Bloom: ${data.bloom}
-11. Níveis de dificuldade: ${data.dificuldade}
-12. Contexto educacional: ${data.contexto}
-13. Idioma da avaliação: ${data.idioma}
-
-DIRETRIZES PEDAGÓGICAS OBRIGATÓRIAS:
-- Todas as questões DEVEM avaliar habilidades da BNCC DAS SÉRIES ANTERIORES.
-- As questões devem verificar se o conhecimento foi:
-  → compreendido
-  → aplicado
-  → transferido para novas situações
-- Evitar questões de memorização mecânica.
-- Priorizar habilidades estruturantes (pré-requisitos reais).
-- As situações-problema devem simular demandas cognitivas da série atual.
-
-FOCO COGNITIVO:
-- Lembrar (apenas quando indispensável)
-- Compreender
-- Aplicar
-- Analisar
-(NÃO utilizar “Criar” como foco principal em sondagem)
-
-ESTRUTURA OBRIGATÓRIA DE CADA QUESTÃO:
-1. Enunciado da questão
-2. Tipo de questão
-3. Série/ano de referência do conhecimento avaliado
-4. Código(s) da habilidade da BNCC (da série anterior)
-5. Nível da Taxonomia de Bloom
-6. Grau de dificuldade
-7. Conhecimento prévio avaliado
-8. Resposta esperada / gabarito
-9. Justificativa pedagógica (o que a resposta revela sobre a aprendizagem do estudante)
-10. Fonte confiável (BNCC, livro didático reconhecido, documento oficial)
-
-EXIGÊNCIAS ACADÊMICAS:
-- NÃO utilizar habilidades da série atual.
-- NÃO inventar códigos BNCC.
-- NÃO inventar referências.
-- Utilizar a BNCC como fonte principal para definição dos pré-requisitos.
-
-FORMATO DE SAÍDA:
-- Avaliação organizada, numerada e clara.
-- Linguagem adequada à série atual do estudante.
-- Indicar implicitamente possíveis lacunas de aprendizagem.
-
-CRITÉRIO DE QUALIDADE:
 A avaliação deve permitir ao professor identificar:
 - Quais conhecimentos prévios foram consolidados
 - Quais estão parcialmente construídos
@@ -908,7 +1082,6 @@ permitindo planejamento de recuperação, reforço ou reensino.
 Agora, gere a avaliação de sondagem com base nas informações fornecidas.`
             }
         ];
-
         // -----------------------------------------------------
         // 2. LÓGICA DE LOGIN (HASH)
         // -----------------------------------------------------
@@ -917,7 +1090,6 @@ Agora, gere a avaliação de sondagem com base nas informações fornecidas.`
 
         function handleLogin(e) {
             e.preventDefault();
-            // Pega o valor sem espaços
             const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPass').value.trim();
             
@@ -935,8 +1107,6 @@ Agora, gere a avaliação de sondagem com base nas informações fornecidas.`
                     document.getElementById('loginScreen').classList.add('hidden-screen');
                     document.getElementById('mainApp').classList.remove('hidden-screen');
                     document.getElementById('mainApp').classList.add('fade-in');
-                    
-                    // Limpa a busca para evitar que o navegador preencha o login lá
                     document.getElementById('searchInput').value = "";
                 } else {
                     form.classList.remove('hidden');
@@ -989,8 +1159,17 @@ Agora, gere a avaliação de sondagem com base nas informações fornecidas.`
             const filtered = generators.filter(g => g.title.toLowerCase().includes(filter.toLowerCase()));
             filtered.forEach(generator => {
                 const btn = document.createElement('button');
-                btn.className = 'w-full text-left px-4 py-3 flex items-center gap-3 transition-all duration-200 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-700 group rounded-lg';
-                btn.innerHTML = `<div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-blue-100 transition-colors"><i class="fas ${generator.icon} text-gray-500 group-hover:text-blue-600"></i></div><div class="flex-1 min-w-0"><div class="font-medium truncate">${generator.title}</div><div class="text-xs text-gray-500 truncate">${generator.description}</div></div>`;
+                btn.className = 'tool-item w-full text-left px-4 py-3.5 flex items-center gap-4 text-sm font-medium text-gray-600 group rounded-xl';
+                btn.innerHTML = `
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-surface-100 to-surface-200 flex items-center justify-center group-hover:from-primary-100 group-hover:to-primary-200 transition-all duration-300 shadow-sm">
+                        <i class="fas ${generator.icon} text-gray-500 group-hover:text-primary-600 transition-colors"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-semibold text-gray-700 group-hover:text-primary-700 truncate transition-colors">${generator.title}</div>
+                        <div class="text-xs text-gray-400 truncate mt-0.5">${generator.description}</div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-300 group-hover:text-primary-400 transition-colors"></i>
+                `;
                 btn.onclick = () => showGenerator(generator, btn);
                 toolList.appendChild(btn);
             });
@@ -998,9 +1177,8 @@ Agora, gere a avaliação de sondagem com base nas informações fornecidas.`
 
         function showGenerator(generator, element) {
             currentGenerator = generator;
-            // Highlight visual
-            if (activeLink) { activeLink.classList.remove('bg-blue-50', 'text-blue-700', 'border-r-4', 'border-blue-600'); activeLink.classList.add('text-gray-600', 'hover:bg-gray-50'); }
-            if (element) { element.classList.remove('text-gray-600', 'hover:bg-gray-50'); element.classList.add('bg-blue-50', 'text-blue-700', 'border-r-4', 'border-blue-600'); activeLink = element; }
+            if (activeLink) { activeLink.classList.remove('active', 'bg-primary-50'); }
+            if (element) { element.classList.add('active', 'bg-primary-50'); activeLink = element; }
 
             document.getElementById('generatorIcon').className = `fas ${generator.icon} text-2xl`;
             document.getElementById('generatorTitle').textContent = generator.title;
@@ -1019,23 +1197,23 @@ Agora, gere a avaliação de sondagem com base nas informações fornecidas.`
                 const div = document.createElement('div');
                 div.className = 'space-y-2';
                 const label = document.createElement('label');
-                label.className = 'block text-sm font-medium text-gray-700';
+                label.className = 'block text-sm font-semibold text-gray-700';
                 label.textContent = field.label + (field.required ? ' *' : '');
                 
                 let input;
                 if (field.type === 'select') {
                     input = document.createElement('select');
-                    input.className = 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white';
+                    input.className = 'w-full px-4 py-3 bg-white border-2 border-surface-200 rounded-xl input-modern cursor-pointer';
                     const def = document.createElement('option'); def.value = ''; def.textContent = 'Selecione...'; input.appendChild(def);
                     field.options.forEach(opt => { const o = document.createElement('option'); o.value = opt; o.textContent = opt; input.appendChild(o); });
                 } else if (field.type === 'textarea') {
                     input = document.createElement('textarea');
-                    input.className = 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500';
+                    input.className = 'w-full px-4 py-3 bg-white border-2 border-surface-200 rounded-xl input-modern resize-none';
                     input.rows = 3;
                 } else {
                     input = document.createElement('input');
                     input.type = field.type;
-                    input.className = 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500';
+                    input.className = 'w-full px-4 py-3 bg-white border-2 border-surface-200 rounded-xl input-modern';
                 }
                 input.name = field.name;
                 if (field.required) input.required = true;
@@ -1043,7 +1221,6 @@ Agora, gere a avaliação de sondagem com base nas informações fornecidas.`
                 div.appendChild(label); div.appendChild(input); generatorForm.appendChild(div);
             });
         }
-
         // -----------------------------------------------------
         // 4. API & GENERATION LOGIC
         // -----------------------------------------------------
@@ -1056,15 +1233,14 @@ Agora, gere a avaliação de sondagem com base nas informações fornecidas.`
             const div = document.getElementById('providerIndicator');
             const warn = document.getElementById('apiKeyWarning');
             if (apiConfig.key && apiConfig.key.length > 5) {
-                div.innerHTML = `<i class="fas fa-check-circle text-emerald-500 mr-2"></i>Conectado: ${apiConfig.provider}`;
+                div.innerHTML = `<div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div><span class="text-emerald-600 font-medium">Conectado: ${apiConfig.provider}</span>`;
                 warn.classList.add('hidden');
             } else {
-                div.innerHTML = `<i class="fas fa-exclamation-circle text-yellow-500 mr-2"></i>Sem conexão`;
+                div.innerHTML = `<div class="w-2 h-2 bg-amber-500 rounded-full"></div><span class="text-amber-600">Sem conexão</span>`;
                 warn.classList.remove('hidden');
             }
         }
 
-        // --- PROMPT ONLY ---
         function handleGeneratePromptOnly() {
             if (!currentGenerator) return;
             const formData = new FormData(generatorForm);
@@ -1084,17 +1260,26 @@ Agora, gere a avaliação de sondagem com base nas informações fornecidas.`
             resultModal.classList.remove('hidden');
             loadingState.classList.add('hidden');
             aiContent.innerHTML = `
-                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
-                    <p class="text-sm text-blue-700"><strong><i class="fas fa-info-circle"></i> Prompt Gerado:</strong> Copie o texto abaixo e cole na sua IA de preferência.</p>
+                <div class="bg-gradient-to-r from-primary-50 to-purple-50 border border-primary-100 p-5 rounded-xl mb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-copy text-primary-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-primary-800 mb-1">Prompt Gerado com Sucesso!</p>
+                            <p class="text-sm text-primary-600">Copie o texto abaixo e cole na sua IA de preferência (ChatGPT, Claude, Gemini, etc.)</p>
+                        </div>
+                    </div>
                 </div>
-                <pre id="promptTextToCopy" class="whitespace-pre-wrap text-sm text-gray-800 font-mono bg-gray-50 p-4 rounded border border-gray-300 h-64 overflow-y-auto">${fullPrompt}</pre>
-                <div class="mt-2 text-right">
-                    <button onclick="copyToClipboard(document.getElementById('promptTextToCopy').innerText)" class="text-blue-600 text-sm font-bold uppercase"><i class="fas fa-copy"></i> Copiar Texto</button>
+                <pre id="promptTextToCopy" class="whitespace-pre-wrap text-sm text-gray-700 font-mono bg-surface-50 p-5 rounded-xl border border-surface-200 max-h-80 overflow-y-auto leading-relaxed">${fullPrompt}</pre>
+                <div class="mt-4 flex justify-end">
+                    <button onclick="copyToClipboard(document.getElementById('promptTextToCopy').innerText)" class="px-5 py-2.5 bg-primary-100 hover:bg-primary-200 text-primary-700 rounded-xl font-semibold transition-colors">
+                        <i class="fas fa-copy mr-2"></i>Copiar Prompt
+                    </button>
                 </div>
             `;
         }
 
-        // --- API GENERATE ---
         async function handleGenerate(e) {
             e.preventDefault();
             if (!currentGenerator) return;
@@ -1116,7 +1301,6 @@ Agora, gere a avaliação de sondagem com base nas informações fornecidas.`
 
             try {
                 let responseText = "";
-                // LOGICA API COMPACTADA PARA CABER
                 if (apiConfig.provider === 'gemini') {
                      const model = apiConfig.model || "gemini-1.5-flash";
                      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiConfig.key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: MASTER_PROMPT + "\n\n" + userPrompt }] }] }) });
@@ -1153,30 +1337,34 @@ Agora, gere a avaliação de sondagem com base nas informações fornecidas.`
                 
                 aiContent.innerHTML = marked.parse(responseText);
             } catch (error) {
-                aiContent.innerHTML = `<div class="bg-red-50 p-4 text-red-700"><strong>Erro:</strong> ${error.message}</div>`;
+                aiContent.innerHTML = `<div class="bg-red-50 p-5 rounded-xl border border-red-100"><div class="flex items-start gap-4"><div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0"><i class="fas fa-exclamation-triangle text-red-600"></i></div><div><p class="font-semibold text-red-800 mb-1">Erro na Requisição</p><p class="text-sm text-red-600">${error.message}</p></div></div></div>`;
             } finally {
                 loadingState.classList.add('hidden');
             }
         }
-
         // -----------------------------------------------------
         // 5. UTILS & MODALS
         // -----------------------------------------------------
         function resetForm() { generatorForm.reset(); }
         function closeModal() { document.getElementById('resultModal').classList.add('hidden'); }
         function closeMasterPrompt() { document.getElementById('masterPromptModal').classList.add('hidden'); }
-        function copyToClipboard(text) { navigator.clipboard.writeText(text).then(() => alert('Copiado!')); }
+        function copyToClipboard(text) { 
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-6 right-6 bg-gray-800 text-white px-5 py-3 rounded-xl shadow-lg z-50 flex items-center gap-3 slide-up';
+                toast.innerHTML = '<i class="fas fa-check-circle text-emerald-400"></i><span>Copiado para a área de transferência!</span>';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }); 
+        }
         function copyContent() { copyToClipboard(aiContent.innerText); }
         
-        // Tutorial
         function showTutorialModal() { document.getElementById('tutorialModal').classList.remove('hidden'); }
         function closeTutorialModal() { document.getElementById('tutorialModal').classList.add('hidden'); }
         
-        // Guia Didático (Novo)
         function showGuideModal() { document.getElementById('guideModal').classList.remove('hidden'); }
         function closeGuideModal() { document.getElementById('guideModal').classList.add('hidden'); }
         
-        // API Config
         function showApiKeyModal() {
             document.getElementById('apiKeyInput').value = apiConfig.key;
             document.getElementById('providerSelect').value = apiConfig.provider;
@@ -1197,15 +1385,25 @@ Agora, gere a avaliação de sondagem com base nas informações fornecidas.`
             const p = document.getElementById('providerSelect').value;
             const k = document.getElementById('apiKeyInput').value.trim();
             const m = document.getElementById('modelInput').value.trim();
-            if(!k) return alert('Chave obrigatória');
+            if(!k) {
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-6 right-6 bg-red-600 text-white px-5 py-3 rounded-xl shadow-lg z-50 flex items-center gap-3 slide-up';
+                toast.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Chave API é obrigatória!</span>';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+                return;
+            }
             apiConfig = { provider: p, key: k, model: m };
             localStorage.setItem('apiConfig', JSON.stringify(apiConfig));
             document.getElementById('apiKeyModal').classList.add('hidden');
             updateProviderIndicator();
-            alert('Salvo!');
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-6 right-6 bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-lg z-50 flex items-center gap-3 slide-up';
+            toast.innerHTML = '<i class="fas fa-check-circle"></i><span>Configuração salva com sucesso!</span>';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
 
-        // Personalization
         function showPersonalizationModal() {
             const form = document.getElementById('personalizationForm');
             Object.keys(personalizationData).forEach(k => { if(form[k]) form[k].value = personalizationData[k]; });
@@ -1217,6 +1415,11 @@ Agora, gere a avaliação de sondagem com base nas informações fornecidas.`
             personalizationData = {}; for(let [k,v] of fd) personalizationData[k] = v;
             localStorage.setItem('personalizationData', JSON.stringify(personalizationData));
             closePersonalizationModal();
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-6 right-6 bg-purple-600 text-white px-5 py-3 rounded-xl shadow-lg z-50 flex items-center gap-3 slide-up';
+            toast.innerHTML = '<i class="fas fa-check-circle"></i><span>Dados salvos com sucesso!</span>';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
 
         // -----------------------------------------------------
@@ -1229,7 +1432,7 @@ Agora, gere a avaliação de sondagem com base nas informações fornecidas.`
         document.getElementById('generatorForm').onsubmit = handleGenerate;
         
         // PWA Install
-        if ('serviceWorker' in navigator) navigator.serviceWorker.register('./service-worker.js');
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
         let deferredPrompt;
         const installBtn = document.getElementById('installBtn');
         window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; installBtn.classList.remove('hidden'); });

@@ -4,8 +4,8 @@
   "description": "Gerador de Atividades Pedagógicas com IA (Detalhado)",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#2563eb",
+  "background_color": "#fafafa",
+  "theme_color": "#6366f1",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3426/3426653.png",
