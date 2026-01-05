@@ -1806,6 +1806,13 @@ Agora, gere a avaliação de sondagem com base nas informações fornecidas.`
             setTimeout(() => toast.remove(), 3000);
         }
 
+        function logout() {
+            if (confirm('Deseja realmente sair? Seus dados de personalização (Nome/Escola) serão limpos.')) {
+                localStorage.removeItem('personalizationData');
+                location.reload();
+            }
+        }
+
         // -----------------------------------------------------
         // 6. EVENT LISTENERS
         // -----------------------------------------------------
