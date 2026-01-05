@@ -1,4 +1,4 @@
-const CACHE_NAME = 'educador-ia-pro-v2';
+const CACHE_NAME = 'educador-ia-pro-v3';
 const ASSETS_TO_CACHE = [
   './index.html',
   './manifest.json',
